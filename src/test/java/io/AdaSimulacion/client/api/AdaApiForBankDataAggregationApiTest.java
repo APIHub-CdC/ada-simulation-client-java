@@ -1,148 +1,36 @@
-# ada-simulation-client-java
+package io.AdaSimulacion.client.api;
 
-This API simulates the aggregation of bank data from a source.<br/><br><img src='https://developer.circulodecredito.com.mx/sites/default/files/2020-10/circulo_de_credito-apihub.png' height='40' width='220'/></p><br/>
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
-## Requirements
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.threeten.bp.OffsetDateTime;
 
-1. Java >= 1.7
-2. Maven >= 3.3
-## Installation
+import io.AdaSimulacion.client.ApiClient;
+import io.AdaSimulacion.client.ApiException;
+import io.AdaSimulacion.client.ApiResponse;
+import io.AdaSimulacion.client.model.AckADARequest;
+import io.AdaSimulacion.client.model.AckBankDataAggregation;
+import io.AdaSimulacion.client.model.AckSuccessADAConsumption;
+import io.AdaSimulacion.client.model.BankDataAggregation;
+import io.AdaSimulacion.client.model.BankDataAggregationConfiguration;
+import io.AdaSimulacion.client.model.BankDataAggregationConfigurationResponse;
+import io.AdaSimulacion.client.model.BankDataAggregationMetadata;
+import io.AdaSimulacion.client.model.ConfigurationRequest;
+import io.AdaSimulacion.client.model.ConfigurationRequestDescriptions;
+import io.AdaSimulacion.client.model.ConfigurationRequestPrincipal;
+import io.AdaSimulacion.client.model.ConfigurationRequestTermsAndConditions;
+import io.AdaSimulacion.client.model.Icons;
+import io.AdaSimulacion.helper.ECDHAlgCipher;
+import io.AdaSimulacion.helper.KeyHandler;
+import okhttp3.OkHttpClient;
 
-To install the dependencies, the following command must be executed:
-```shell
-mvn install -Dmaven.test.skip=true
-```
-## Getting started
-
-### Step 1. Generate key and certificate
-
-Before launching the test, you must have a keystore for the private key and the certificate associated with it. To generate the keystore, execute the instructions found in **src/main/security/createKeystore.sh** or with the following commands:
-
-**Optional**: If you want to encrypt your container, put a password in an environment variable.
-
-```shell
-export KEY_PASSWORD=your_super_secure_password
-```
-
-**Optional**: If you want to encrypt your keystore, put a password in an environment variable.
-
-```shell
-export KEYSTORE_PASSWORD=your_super_secure_keystore_password
-```
-
-- Definition of file names and aliases.
-
-```shell
-export PRIVATE_KEY_FILE=pri_key.pem
-export CERTIFICATE_FILE=certificate.pem
-export SUBJECT=/C=MX/ST=MX/L=MX/O=CDC/CN=CDC
-export PKCS12_FILE=keypair.p12
-export KEYSTORE_FILE=keystore.jks
-export ALIAS=cdc
-```
-- Generate key and certificate.
-
-```shell
-# Generate private key.
-openssl ecparam -name secp384r1 -genkey -out ${PRIVATE_KEY_FILE}
-
-# Generate public key
-openssl req -new -x509 -days 365 \
-  -key ${PRIVATE_KEY_FILE} \
-  -out ${CERTIFICATE_FILE} \
-  -subj "${SUBJECT}"
-
-```
-
-- Generate PKCS12 container from private key and certificate
-
-```shell
-# Generate PKCS12 container from private key and certificate
-# You will need to package your private key and certificate.
-
-openssl pkcs12 -name ${ALIAS} \
-  -export -out ${PKCS12_FILE} \
-  -inkey ${PRIVATE_KEY_FILE} \
-  -in ${CERTIFICATE_FILE} \
-  -password pass:${KEY_PASSWORD}
-
-```
-
-- Generate a dummy keystore and delete its content.
-
-```sh
-#Generate a Keystore with a pair of dummy keys.
-keytool -genkey -alias dummy -keyalg RSA \
-    -keysize 2048 -keystore ${KEYSTORE_FILE} \
-    -dname "CN=dummy, OU=, O=, L=, S=, C=" \
-    -storepass ${KEYSTORE_PASSWORD} -keypass ${KEY_PASSWORD}
-#Remove the dummy key pair.
-keytool -delete -alias dummy \
-    -keystore ${KEYSTORE_FILE} \
-    -storepass ${KEYSTORE_PASSWORD}
-```
-
-- Import the PKCS12 container to the keystore
-
-```sh
-#We import the PKCS12 container
-keytool -importkeystore -srckeystore ${PKCS12_FILE} \
-  -srcstoretype PKCS12 \
-  -srcstorepass ${KEY_PASSWORD} \
-  -destkeystore ${KEYSTORE_FILE} \
-  -deststoretype JKS -storepass ${KEYSTORE_PASSWORD} \
-  -alias ${ALIAS}
-#List the contents of the Kesystore to verify that
-keytool -list -keystore ${KEYSTORE_FILE} \
-  -storepass ${KEYSTORE_PASSWORD}
-```
-
-### Step 2.  Uploading the certificate within the developer portal
-
- 1. Login.
- 2. Click on the section "**Mis aplicaciones**".
- 3. Select the application.
- 4. Go to the tab "**Certificados para @tuApp**".
-    <p align="center">
-      <img src="https://github.com/APIHub-CdC/imagenes-cdc/blob/master/applications.png">
-    </p>
- 5. When the window opens, select the previously created certificate and click the button "**Cargar**":
-    <p align="center">
-      <img src="https://github.com/APIHub-CdC/imagenes-cdc/blob/master/upload_cert.png">
-    </p>
-
-### Step 3.  Download the Círculo de Crédito certificate within the developer portal
-
- 1. Login.
- 2. Click on the section "**Mis aplicaciones**".
- 3. Select the application.
- 4. Go to the tab "**Certificados para @tuApp**".
-    <p align="center">
-        <img src="https://github.com/APIHub-CdC/imagenes-cdc/blob/master/applications.png">
-    </p>
- 5. When the window opens, click the button "**Descargar**":
-    <p align="center">
-        <img src="https://github.com/APIHub-CdC/imagenes-cdc/blob/master/download_cert.png">
-    </p>
-
-### Step 4. Modify configuration file
-
-To make use of the certificate that was downloaded and the keystore that was created, the routes found in ***src/test/java/io/AdaSimulacion/client/api/AdaApiForBankDataAggregationsApiTes.java***
-```properties
-	private String certFile = "/your_path_for_certificate_of_cdc/certificate.pem";
-	private String privateKeyPath = "/your_path_for_your_keystore/keystore.jks";
-	private String keystorePassword = "your_super_secure_keystore_password";
-	private String keyPassword = "your_super_secure_key_password";
-	private String keyAlias = "cdc";
-```
-### Step 5. Modify URL and request data
-
-In the WebHookSubscriptionsApiTest.java file, found at ***src/test/java/io/AdaSimulacion/client/api/AdaApiForBankDataAggregationsApiTes.java***. The request and URL data for API consumption must be modified in setBasePath ("the_url"), as shown in the following code snippet with the corresponding data:
-
-
-> **NOTE:** The data in the following request is only representative.
-
-```java
 public class AdaApiForBankDataAggregationApiTest {
 
 	private final AdaApiForBankDataAggregationApi ada = new AdaApiForBankDataAggregationApi();
@@ -268,15 +156,3 @@ public class AdaApiForBankDataAggregationApiTest {
 	}
 
 }
-
-```
-### Step 6. Run the unit test
-
-Having the previous steps, all that remains is to run the unit test, with the following command:
-```shell
-mvn test -Dmaven.install.skip=true
-```
-
-
----
-[TERMS AND CONDITIONS](https://github.com/APIHub-CdC/licencias-cdc)
