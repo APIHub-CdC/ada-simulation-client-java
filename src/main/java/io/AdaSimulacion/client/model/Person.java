@@ -7,109 +7,120 @@ import com.google.gson.annotations.SerializedName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+
 @ApiModel(description = "Encrypted Bank Information.")
 
 public class Person {
-	@SerializedName("fullName")
-	private String fullName = null;
-	@SerializedName("phoneNumber")
-	private String phoneNumber = null;
-	@SerializedName("accounts")
-	private Account accounts = null;
-	@SerializedName("summary")
-	private AccountingSummary summary = null;
+  @SerializedName("customers")
+  private Customer customers = null;
 
-	public Person fullName(String fullName) {
-		this.fullName = fullName;
-		return this;
-	}
+  @SerializedName("cards")
+  private Card cards = null;
 
-	@ApiModelProperty(example = "JUAN SESENTAYSIETE PRUEBA", value = "")
-	public String getFullName() {
-		return fullName;
-	}
+  @SerializedName("accounts")
+  private Account accounts = null;
 
-	public void setFullName(String fullName) {
-		this.fullName = fullName;
-	}
+  @SerializedName("summary")
+  private AccountingSummary summary = null;
 
-	public Person phoneNumber(String phoneNumber) {
-		this.phoneNumber = phoneNumber;
-		return this;
-	}
+  public Person customers(Customer customers) {
+    this.customers = customers;
+    return this;
+  }
 
-	@ApiModelProperty(example = "550000067", value = "")
-	public String getPhoneNumber() {
-		return phoneNumber;
-	}
+  @ApiModelProperty(value = "")
+  public Customer getCustomers() {
+    return customers;
+  }
 
-	public void setPhoneNumber(String phoneNumber) {
-		this.phoneNumber = phoneNumber;
-	}
+  public void setCustomers(Customer customers) {
+    this.customers = customers;
+  }
 
-	public Person accounts(Account accounts) {
-		this.accounts = accounts;
-		return this;
-	}
+  public Person cards(Card cards) {
+    this.cards = cards;
+    return this;
+  }
 
-	@ApiModelProperty(value = "")
-	public Account getAccounts() {
-		return accounts;
-	}
+  @ApiModelProperty(value = "")
+  public Card getCards() {
+    return cards;
+  }
 
-	public void setAccounts(Account accounts) {
-		this.accounts = accounts;
-	}
+  public void setCards(Card cards) {
+    this.cards = cards;
+  }
 
-	public Person summary(AccountingSummary summary) {
-		this.summary = summary;
-		return this;
-	}
+  public Person accounts(Account accounts) {
+    this.accounts = accounts;
+    return this;
+  }
 
-	@ApiModelProperty(value = "")
-	public AccountingSummary getSummary() {
-		return summary;
-	}
+   
+  @ApiModelProperty(value = "")
+  public Account getAccounts() {
+    return accounts;
+  }
 
-	public void setSummary(AccountingSummary summary) {
-		this.summary = summary;
-	}
+  public void setAccounts(Account accounts) {
+    this.accounts = accounts;
+  }
 
-	@Override
-	public boolean equals(java.lang.Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		Person person = (Person) o;
-		return Objects.equals(this.fullName, person.fullName) && Objects.equals(this.phoneNumber, person.phoneNumber)
-				&& Objects.equals(this.accounts, person.accounts) && Objects.equals(this.summary, person.summary);
-	}
+  public Person summary(AccountingSummary summary) {
+    this.summary = summary;
+    return this;
+  }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(fullName, phoneNumber, accounts, summary);
-	}
+  @ApiModelProperty(value = "")
+  public AccountingSummary getSummary() {
+    return summary;
+  }
 
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("class Person {\n");
+  public void setSummary(AccountingSummary summary) {
+    this.summary = summary;
+  }
 
-		sb.append("    fullName: ").append(toIndentedString(fullName)).append("\n");
-		sb.append("    phoneNumber: ").append(toIndentedString(phoneNumber)).append("\n");
-		sb.append("    accounts: ").append(toIndentedString(accounts)).append("\n");
-		sb.append("    summary: ").append(toIndentedString(summary)).append("\n");
-		sb.append("}");
-		return sb.toString();
-	}
 
-	private String toIndentedString(java.lang.Object o) {
-		if (o == null) {
-			return "null";
-		}
-		return o.toString().replace("\n", "\n    ");
-	}
+  @Override
+  public boolean equals(java.lang.Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Person person = (Person) o;
+    return Objects.equals(this.customers, person.customers) &&
+        Objects.equals(this.cards, person.cards) &&
+        Objects.equals(this.accounts, person.accounts) &&
+        Objects.equals(this.summary, person.summary);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(customers, cards, accounts, summary);
+  }
+
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("class Person {\n");
+    
+    sb.append("    customers: ").append(toIndentedString(customers)).append("\n");
+    sb.append("    cards: ").append(toIndentedString(cards)).append("\n");
+    sb.append("    accounts: ").append(toIndentedString(accounts)).append("\n");
+    sb.append("    summary: ").append(toIndentedString(summary)).append("\n");
+    sb.append("}");
+    return sb.toString();
+  }
+
+  private String toIndentedString(java.lang.Object o) {
+    if (o == null) {
+      return "null";
+    }
+    return o.toString().replace("\n", "\n    ");
+  }
+
 }
+
